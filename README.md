@@ -1,16 +1,89 @@
-# React + Vite
+# 🪙 PennyWise — AI Receipt Scanner & Savings Advisor
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> Snap a photo of any receipt. Get instant AI-powered savings suggestions.
 
-Currently, two official plugins are available:
+## ✨ What It Does
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+PennyWise uses **Groq Vision AI** to read any grocery or dining receipt and:
 
-## React Compiler
+- 📂 **Extracts every line item** with price and category automatically
+- ⭐ **Scores your shopping 0–100** based on value for money
+- 💡 **Finds cheaper alternatives** at Costco, Aldi, Walmart, and Trader Joe's
+- 💬 **Chat with your receipts** — ask "why is my score low?" in plain English
+- 📊 **Tracks spending history** with monthly bar charts and category breakdowns
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠 Tech Stack
 
-## Expanding the ESLint configuration
+| Layer | Technology | Why |
+|-------|-----------|-----|
+| Frontend | React + Vite | Component-based UI, fast HMR |
+| AI Vision | Groq API (Llama 4 Scout) | Free tier, image reading |
+| Charts | Recharts | Bar + pie chart visualizations |
+| Storage | localStorage → DynamoDB (V2) | Browser persistence, no backend needed for V1 |
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🏗 Architecture
+```
+Photo upload
+    ↓
+React converts image → base64
+    ↓
+POST to Groq Vision API
+  • image data (base64)
+  • prompt: extract items + find savings
+    ↓
+Groq returns structured JSON
+  • store, date, total, savings_score
+  • each item with category + store suggestion
+    ↓
+React saves to localStorage
+    ↓
+UI renders results + chat + dashboard
+```
+
+## 🚀 Running Locally
+```bash
+git clone https://github.com/lahari-badhe/pennywise.git
+cd pennywise
+npm install
+```
+
+Create `.env` file:
+```
+VITE_GROQ_KEY=your_groq_key_here
+```
+
+Get a free Groq API key at [console.groq.com](https://console.groq.com)
+```bash
+npm run dev
+# open http://localhost:5173
+```
+
+## 📌 Project Versions
+
+| Version | Features | Status |
+|---------|----------|--------|
+| **V1** | Receipt scan, savings score, chat, dashboard, localStorage | ✅ Complete |
+| **V2** | AWS Lambda + DynamoDB + Plaid bank sync | 🔨 Planned |
+
+## 🤖 Built With AI Assistance
+
+Built using **Claude AI** as a development collaborator:
+- Designed receipt parsing prompt (modified output schema for React compatibility)
+- Debugged Groq API integration using structured response logging
+- Scaffolded Recharts components (rewrote data transformation logic)
+
+## 💡 Key Technical Decisions
+
+**Why Groq instead of OpenAI?**
+Free tier with vision support. OpenAI-compatible format means easy migration later.
+
+**Why localStorage instead of a database?**
+V1 tradeoff — zero infrastructure needed. V2 upgrades to DynamoDB with identical
+code change (swap `localStorage.setItem` for a `fetch()` call to Lambda API).
+
+**How does chat remember the receipt?**
+The AI is stateless. Every message re-sends the full conversation history plus all
+receipt data as context. Same pattern used by ChatGPT and Claude.
+
+## 📄 License
+MIT
