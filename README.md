@@ -39,6 +39,11 @@ React saves to localStorage
     ↓
 UI renders results + chat + dashboard
 ```
+### Full system flow
+![PennyWise Architecture](architecture-diagram.svg)
+
+### How the savings score is calculated
+![Savings Score](savings-score-diagram.svg)
 
 ## 🚀 Running Locally
 ```bash
